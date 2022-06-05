@@ -24,11 +24,6 @@ host_socket.listen()
 conn, addr = host_socket.accept()
 print ('Connection address:', addr)
 
-while True:
-    primljeno = conn.recv(BUFFER_SIZE).decode()
-    if not primljeno: break
-    print ("Received data from client:", primljeno)
-    zahtev = primljeno
 
 def jsonToXml(request):
     d = json.loads(request)
@@ -45,12 +40,19 @@ def jsonToXml(request):
 
     xmlstr = e.tostring(r, encoding='utf8', method='xml')
 
-    print(xmlstr)
+    return xmlstr
 
 
 def xmlToJson(self,s):
     #root = e.fromstring(s)
     data_dict = xmltodict.parse(s)
     json_data = json.dumps(data_dict)
-    print(json_data)
+    return json_data
 
+while True:
+    primljeno = conn.recv(BUFFER_SIZE).decode()
+    if not primljeno: break
+    print ("Received data from client:", primljeno)
+    zahtev = primljeno
+    data_dict = jsonToXml(zahtev)
+    conn.sendall(data_dict)

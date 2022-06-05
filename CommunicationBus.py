@@ -8,6 +8,7 @@ query_fields = ["id","name","surname","type",""]
 
 IP = "127.0.0.1"
 HOST_PORT = 5005
+SERVICE_PORT_XMLADAPTER = 5006
 BUFFER_SIZE = 1024
 
 host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,6 +17,8 @@ print("CommunicationBus listening for connections..")
 host_socket.listen()
 conn, addr = host_socket.accept()
 print ('Connection address:', addr)
+xml_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+xml_client_socket.connect((IP, SERVICE_PORT_XMLADAPTER))
 
 def ProveraQuery():
     query_statements=split("; ",zahtev_dict["query"])
@@ -63,7 +66,12 @@ while True:
     zahtev = primljeno
     zahtev_dict=json.loads(zahtev)
     provera=ProveraFormata()
-
+    if provera == True:
+        xml_client_socket.send(zahtev.encode())
+        XMLzahtev = xml_client_socket.recv(BUFFER_SIZE)
+        print(XMLzahtev)
+    else:
+        conn.send(provera.encode())
 
 
 
