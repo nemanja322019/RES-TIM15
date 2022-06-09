@@ -183,34 +183,3 @@ while True:
 
 
 
-#db1.GetValuesFromQuery(db1.GetQuery())
-
-#db1.GetValuesFromQuery()
-''' def GetName(zahtev):
-            nameSplit = zahtev.split("name=")
-            semicolonSplit = nameSplit[1].split(";")
-            name = semicolonSplit[0][1:len(semicolonSplit[0])-1]
-            return name
-    
-    def GetType(zahtev):
-        typeSplit = zahtev.split("type=")
-        querySplit = typeSplit[1].split("</query>")
-        type = querySplit[0]
-        print(type)
-
-    GetName(zahtev)
-    GetType(zahtev)
-    def MethodGetToSql(zahtev):
-        def GetName(zahtev):
-            nameSplit = zahtev.split("name=")
-            semicolonSplit = nameSplit[1].split(";")
-            name = semicolonSplit[0][1:len(semicolonSplit[0])-1]
-            return name
-        sqlReq = "select *from osoba where "
-        if("name" in zahtev):
-            sqlReq += "ime="+GetName(zahtev)
-        print(sqlReq)
-    MethodGetToSql(zahtev)'''
-   
-    
-
