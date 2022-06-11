@@ -9,7 +9,8 @@ class baza_podataka:
         self.execute_query(con,self.create_users_table)
         self.execute_query(con,self.create_relations_type_table)
         self.execute_query(con,self.create_relations_table)
-        
+        self.execute_query(con,self.podaci)
+
     def create_connection(self,path):
         connection = None
         try:
@@ -25,40 +26,46 @@ class baza_podataka:
             cursor.execute(query)
             connection.commit()
             print("Query executed successfully")
-        except Error as e:
-            print(f"The error '{e}' occurred")
+            return cursor.fetchall()
+        except SyntaxError:
+            return "REJECTED"
+        except:
+            return "BAD FORMAT"
 
     create_users_table = """
     CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ime TEXT NOT NULL,
-    prezime TEXT NOT NULL,
-    opis TEXT,
-    tip_id INTEGER NOT NULL,
-    FOREIGN KEY (tip_id) REFERENCES user_type (id) 
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    description TEXT,
+    type INTEGER NOT NULL,
+    FOREIGN KEY (type) REFERENCES user_type (id) 
     );
     """
     
     create_users_type_table = """
     CREATE TABLE IF NOT EXISTS user_type (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    naziv TEXT
+    title TEXT
     );
     """
 
     create_relations_table = """
     CREATE TABLE IF NOT EXISTS relations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_user_id INTEGER NOT NULL references users(id),
-    second_user_id  INTEGER NOT NULL references users(id),
-    tip_id INTEGER NOT NULL,
-    FOREIGN KEY (tip_id) REFERENCES relation_type (id) 
+    idFirstUser INTEGER NOT NULL references users(id),
+    idSecondUser  INTEGER NOT NULL references users(id),
+    type INTEGER NOT NULL,
+    FOREIGN KEY (type) REFERENCES relation_type (id) 
     );
     """
 
     create_relations_type_table = """
     CREATE TABLE IF NOT EXISTS relation_type (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    naziv TEXT
+    title TEXT
     );
     """
+
+
+    podaci = '''INSERT INTO relations (idFirstUser,idSecondUser,type) VALUES (1,2,2);'''

@@ -3,12 +3,7 @@ import xml.etree.cElementTree as e
 import xmltodict
 import json
 import socket
-poruka = """{
- "verb": "GET",
- "noun": "/resurs/1",
- "query": "name='pera'; type=1",
- "fields": "id; name; surname"
-}"""
+
 
 IP = "127.0.0.1"
 HOST_PORT = 5006
@@ -33,8 +28,10 @@ def jsonToXml(request):
 
     e.SubElement(r, "verb").text = d["verb"]
     e.SubElement(r, "noun").text = d["noun"]
-    e.SubElement(r, "query").text = d["query"]
-    e.SubElement(r, "fields").text = d["fields"]
+    if "query" in d:
+        e.SubElement(r, "query").text = d["query"]
+    if "fields" in d:
+        e.SubElement(r, "fields").text = d["fields"]
 
     a = e.ElementTree(r)
 
@@ -43,7 +40,7 @@ def jsonToXml(request):
     return xmlstr
 
 
-def xmlToJson(self,s):
+def xmlToJson(s):
     #root = e.fromstring(s)
     data_dict = xmltodict.parse(s)
     json_data = json.dumps(data_dict)
@@ -54,5 +51,8 @@ while True:
     if not primljeno: break
     print ("Received data from client:", primljeno)
     zahtev = primljeno
-    data_dict = jsonToXml(zahtev)
-    conn.sendall(data_dict)
+    if zahtev[0] != '<':
+        data_dict = jsonToXml(zahtev)
+    else :
+        data_dict  = xmlToJson(zahtev)
+    conn.sendall(str(data_dict).encode())
