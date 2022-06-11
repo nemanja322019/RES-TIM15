@@ -4,7 +4,7 @@ import xml.etree.ElementTree as ET
 
 IP = "127.0.0.1"
 HOST_PORT = 5007
-
+SERVICE_PORT = 5008
 BUFFER_SIZE = 1024
 
 class XmlDataBaseAdapter:
@@ -161,6 +161,79 @@ class XmlDataBaseAdapter:
             sqlReq += " WHERE " + self.GetQuery()
         return sqlReq
 
+    def ToXml(self, query, result):
+
+
+        rejected = "REJECTED"
+        badFormat = "BAD_FORMAT"
+        status_code = ["3000", "5000", "2000"]
+
+        xmlOdgRejected = "<odgovor><status>REJECTED</status><statuscode>3000</statuscode><payload>"
+        xmlOdgRejected = xmlOdgRejected  + result + "</payload></odgovor> "
+
+        xmlOdgBadFormat = "<odgovor><status>BAD_FORMAT</status><statuscode>5000</statuscode><payload>"
+        xmlOdgBadFormat = xmlOdgBadFormat  + result + "</payload></odgovor>"
+
+        if result == "R E J E C T E D":
+            return xmlOdgRejected
+        if result == "B A D   F O R M A T":
+            return xmlOdgBadFormat
+
+        xmlOdgsuccess = "<odgovor><status>SUCCESS</status><statuscode>2000</statuscode>"
+
+        if "select" in query:
+            odg = result.split(" ")  # od stringa koji je dosao iz repository se pravi lista
+            pyl = self.ToPayloadSelect(odg, query)  # ovde se dobija payload
+
+        elif "DELETE" in query:
+            pyl = "SUCCESSFULLY DELETED"
+
+        elif "INSERT INTO" in query:
+            pyl = "SUCCESSFULLY INSERTED"
+
+        elif "UPDATE" in query:
+            pyl = "SUCCESSFULLY UPDATED"
+
+        payload = "<payload>"+pyl+"</payload>"
+
+        rez = xmlOdgsuccess + payload + "</odgovor>"
+
+        return rez
+
+    def ToPayloadSelect(self, result, query):
+
+        payload = ""
+        validFields = ["id", "name", "surname", "opis", "type", "naziv", "first_user_id", "second_user_id", "tip_id"]
+
+        start = query.find('select') + 7
+        end = query.find(' from', start)
+        pom = query[start:end]
+
+        if "*" in pom:
+            if "from users" in query:
+                pom = "id,  name,  surname,  opis,  type"
+            elif "from user_type" in query:
+                pom = "id,  naziv"
+            elif "from relations" in query:
+                pom = "id,  first_user_id,  second_user_id,  tip_id"
+            elif "from relation_type" in query:
+                pom = "id,  naziv"
+
+        fields = pom.split(","+"  ") #niz polja koja se kupe iz baze
+
+        duzina = len(fields)#koliko ima clanova niz fielda
+        j = 0
+
+        #u ovim petljama se pravi payload tj xml odgovor iz baze
+        while j<len(result):
+            i=0
+            payload = payload + '<resurs>'
+            while i < duzina:
+                payload = payload + '<' + fields[i] + '>' + result[j] + '</' + fields[i] + '>'
+                j = j+1
+                i = i+1
+            payload = payload + "</resurs>"
+        return payload
 
 
 host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -171,7 +244,8 @@ host_socket.listen()
 conn, addr = host_socket.accept()
 print ('Connection address:', addr)
 
-
+repository_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+repository_client_socket.connect((IP, SERVICE_PORT))
 
 while True:
     primljeno = conn.recv(BUFFER_SIZE).decode()
@@ -180,6 +254,11 @@ while True:
     zahtev = primljeno
     db1 = XmlDataBaseAdapter(zahtev)
     zahtev = db1.ToSQL()
+    repository_client_socket.send(zahtev.encode())
+    odgovor = repository_client_socket.recv(BUFFER_SIZE).decode()
+    conn.sendall(db1.ToXml(zahtev,odgovor).encode())
+    print(odgovor)
 
 
+    
 
