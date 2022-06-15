@@ -9,7 +9,7 @@ class baza_podataka:
         self.execute_query(con,self.create_users_table)
         self.execute_query(con,self.create_relations_type_table)
         self.execute_query(con,self.create_relations_table)
-        self.execute_query(con,self.podaci)
+        #self.execute_query(con,self.podaci)
 
     def create_connection(self,path):
         connection = None
@@ -68,4 +68,4 @@ class baza_podataka:
     """
 
 
-    podaci = '''INSERT INTO relations (idFirstUser,idSecondUser,type) VALUES (1,2,2);'''
+    #podaci = '''INSERT INTO relations (idFirstUser,idSecondUser,type) VALUES (1,2,2);'''
