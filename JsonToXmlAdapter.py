@@ -20,7 +20,7 @@ conn, addr = host_socket.accept()
 print ('Connection address:', addr)
 
 
-def jsonToXml(request):
+def json_to_xml(request):
     d = json.loads(request)
     print(d)
 
@@ -33,15 +33,13 @@ def jsonToXml(request):
     if "fields" in d:
         e.SubElement(r, "fields").text = d["fields"]
 
-    a = e.ElementTree(r)
 
     xmlstr = e.tostring(r, encoding='utf8', method='xml')
 
     return xmlstr
 
 
-def xmlToJson(s):
-    #root = e.fromstring(s)
+def xml_to_json(s):
     data_dict = xmltodict.parse(s)
     json_data = json.dumps(data_dict)
     return json_data
@@ -52,7 +50,7 @@ while True:
     print ("Received data from client:", primljeno)
     zahtev = primljeno
     if zahtev[0] != '<':
-        data_dict = jsonToXml(zahtev)
+        data_dict = json_to_xml(zahtev)
     else :
-        data_dict  = xmlToJson(zahtev)
+        data_dict  = xml_to_json(zahtev)
     conn.sendall(str(data_dict).encode())
