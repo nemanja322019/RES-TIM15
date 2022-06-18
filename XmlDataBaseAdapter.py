@@ -2,10 +2,6 @@ from select import select
 import socket
 import xml.etree.ElementTree as ET
 
-IP = "127.0.0.1"
-HOST_PORT = 5007
-SERVICE_PORT = 5008
-BUFFER_SIZE = 1024
 
 class XmlDataBaseAdapter:
 
@@ -177,8 +173,11 @@ class XmlDataBaseAdapter:
         xmlodgsuccess = "<odgovor><status>SUCCESS</status><statuscode>2000</statuscode>"
 
         if "select" in query:
-            odg = result.split(" ")  # od stringa koji je dosao iz repository se pravi lista
-            pyl = self.to_payload_select(odg, query)  # ovde se dobija payload
+            if result == "EMPTY":
+                pyl="NO SUCH RESOURCE"
+            else:
+                odg = result.split(" ")  # od stringa koji je dosao iz repository se pravi lista
+                pyl = self.to_payload_select(odg, query)  # ovde se dobija payload
 
         elif "DELETE" in query:
             pyl = "SUCCESSFULLY DELETED"
@@ -229,29 +228,35 @@ class XmlDataBaseAdapter:
             payload = payload + "</resurs>"
         return payload
 
+if __name__ == "__main__":
 
-host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host_socket.bind((IP, HOST_PORT))
-print("XmlDataBaseAdapter listening for connections..")
-host_socket.listen()
+    IP = "127.0.0.1"
+    HOST_PORT = 5007
+    SERVICE_PORT = 5008
+    BUFFER_SIZE = 1024
 
-conn, addr = host_socket.accept()
-print ('Connection address:', addr)
+    host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    host_socket.bind((IP, HOST_PORT))
+    print("XmlDataBaseAdapter listening for connections..")
+    host_socket.listen()
 
-repository_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-repository_client_socket.connect((IP, SERVICE_PORT))
+    conn, addr = host_socket.accept()
+    print ('Connection address:', addr)
 
-while True:
-    primljeno = conn.recv(BUFFER_SIZE).decode()
-    if not primljeno: break
-    print ("Received data from client:", primljeno)
-    zahtev = primljeno
-    db1 = XmlDataBaseAdapter(zahtev)
-    zahtev = db1.to_sql()
-    repository_client_socket.send(zahtev.encode())
-    odgovor = repository_client_socket.recv(BUFFER_SIZE).decode()
-    conn.sendall(db1.to_xml(zahtev,odgovor).encode())
-    print(odgovor)
+    repository_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    repository_client_socket.connect((IP, SERVICE_PORT))
+
+    while True:
+        primljeno = conn.recv(BUFFER_SIZE).decode()
+        if not primljeno: break
+        print ("Received data from client:", primljeno)
+        zahtev = primljeno
+        db1 = XmlDataBaseAdapter(zahtev)
+        zahtev = db1.to_sql()
+        repository_client_socket.send(zahtev.encode())
+        odgovor = repository_client_socket.recv(BUFFER_SIZE).decode()
+        conn.sendall(db1.to_xml(zahtev,odgovor).encode())
+        print(odgovor)
 
 
     
