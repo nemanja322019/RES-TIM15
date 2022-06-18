@@ -8,7 +8,7 @@ class XmlDataBaseAdapter:
     def __init__(self, zahtev):
        self.zahtev = zahtev  
 
-    #na osnovu zahteva(GET,POST,DELET ili PATCH) bira koju metodu poziva
+    # na osnovu zahteva(GET,POST,DELET ili PATCH) bira koju metodu poziva
     def to_sql(self):
         verb = zahtev.split("verb")
         verb = verb[1][1:-2]
