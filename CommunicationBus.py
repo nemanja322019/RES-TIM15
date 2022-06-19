@@ -6,10 +6,15 @@ verb_format = ["GET", "POST", "PATCH","DELETE"]
 noun_format = ["/resurs/1","/resurs/2","/resurs/3","/resurs/4"]
 
 query_fields1 = ["id","name","surname","description","type",""]
-query_fields2 = ["id","naziv",""]
+query_fields2 = ["id","title",""]
 query_fields3 = ["id","idFirstUser","idSecondUser","type",""]
-query_fields4 = ["id","naziv",""]
+query_fields4 = ["id","title",""]
 
+IP = "127.0.0.1"
+HOST_PORT = 5005
+SERVICE_PORT_XMLADAPTER = 5006
+SERVICE_PORT_DATABASE_ADAPTER = 5007
+BUFFER_SIZE = 2048
 
 
 def switch(noun):
@@ -102,12 +107,6 @@ def provera_formata(zahtev_dict):
     return True
         
 if __name__ == "__main__":
-    IP = "127.0.0.1"
-    HOST_PORT = 5005
-    SERVICE_PORT_XMLADAPTER = 5006
-    SERVICE_PORT_DATABASE_ADAPTER = 5007
-    BUFFER_SIZE = 1024
-
     host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     host_socket.bind((IP, HOST_PORT))
     print("CommunicationBus listening for connections..")
@@ -130,7 +129,7 @@ if __name__ == "__main__":
         try:
             zahtev_dict=json.loads(zahtev)
         except:
-            conn.send("BAD FORMAT".encode())
+            conn.send('{"odgovor": {"status": "BAD_FORMAT", "statuscode": "5000", "payload": "B A D   F O R M A T"}}'.encode())
             continue
         
         provera=provera_formata(zahtev_dict)

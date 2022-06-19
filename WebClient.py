@@ -3,7 +3,7 @@ import socket
 IP = "127.0.0.1"
 HOST_PORT = 5004
 SERVICE_PORT = 5005
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 2048
 
 host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host_socket.bind((IP, HOST_PORT))

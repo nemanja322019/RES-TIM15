@@ -4,7 +4,7 @@ from warnings import catch_warnings
 
 IP = "127.0.0.1"
 SERVICE_PORT = 5004
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 2048
 
 f = open ('zahtevi.json', "r")
 

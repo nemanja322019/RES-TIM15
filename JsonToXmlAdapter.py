@@ -25,6 +25,7 @@ def json_to_xml(request):
     if "fields" in d:
         e.SubElement(r, "fields").text = d["fields"]
 
+
     xmlstr = e.tostring(r, encoding='utf8', method='xml')
 
     return str(xmlstr)
@@ -34,7 +35,6 @@ def xml_to_json(s):
     data_dict = xmltodict.parse(s)
     json_data = json.dumps(data_dict)
     return json_data
-
 
 if __name__ == "__main__":
 
