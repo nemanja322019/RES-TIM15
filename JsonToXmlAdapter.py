@@ -4,21 +4,13 @@ import xmltodict
 import json
 import socket
 
-
 IP = "127.0.0.1"
 HOST_PORT = 5006
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 2048
 
 host_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host_socket.bind((IP, HOST_PORT))
 print("JsonXmlAdapter listening for connections..")
-host_socket.listen()
-
-
-
-conn, addr = host_socket.accept()
-print ('Connection address:', addr)
-
 
 def json_to_xml(request):
     d = json.loads(request)
@@ -33,10 +25,9 @@ def json_to_xml(request):
     if "fields" in d:
         e.SubElement(r, "fields").text = d["fields"]
 
-
     xmlstr = e.tostring(r, encoding='utf8', method='xml')
 
-    return xmlstr
+    return str(xmlstr)
 
 
 def xml_to_json(s):
@@ -44,13 +35,24 @@ def xml_to_json(s):
     json_data = json.dumps(data_dict)
     return json_data
 
-while True:
-    primljeno = conn.recv(BUFFER_SIZE).decode()
-    if not primljeno: break
-    print ("Received data from client:", primljeno)
-    zahtev = primljeno
-    if zahtev[0] != '<':
-        data_dict = json_to_xml(zahtev)
-    else :
-        data_dict  = xml_to_json(zahtev)
-    conn.sendall(str(data_dict).encode())
+
+if __name__ == "__main__":
+
+    host_socket.listen()
+
+    conn, addr = host_socket.accept()
+    print('Connection address:', addr)
+
+    while True:
+        primljeno = conn.recv(BUFFER_SIZE).decode()
+        if not primljeno: break
+        print ("Received data from client:", primljeno)
+        print(type(primljeno))
+        zahtev = primljeno
+        if zahtev[0] != '<':
+            data_dict = json_to_xml(zahtev)
+            print(data_dict)
+        else :
+            data_dict  = xml_to_json(zahtev)
+            print(data_dict)
+        conn.sendall(str(data_dict).encode())
